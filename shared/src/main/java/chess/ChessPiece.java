@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -60,6 +59,9 @@ public class ChessPiece {
             case KING -> kingMoves(board, myPosition, moves);
             case KNIGHT -> knightMoves(board, myPosition, moves);
             case ROOK -> rookMoves(board, myPosition, moves);
+            case BISHOP -> bishopMoves(board, myPosition, moves);
+            case QUEEN -> queenMoves(board, myPosition, moves);
+            case PAWN -> pawnMoves(board, myPosition, moves);
             default -> { }
         }
         return moves;
@@ -114,6 +116,36 @@ public class ChessPiece {
         }
     }
 
+    private void bishopMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
+        int r = from.getRow();
+        int c = from.getColumn();
+        int[][] directions = {
+                {1,1},{1,-1},{-1,1},{-1,-1}
+        };
+        for(int[] dir : directions){
+            int dr = dir[0];
+            int dc = dir[1];
+
+            int newRow = r + dr;
+            int newCol = c + dc;
+
+            while (isOnBoard(newRow, newCol)){
+                ChessPosition to = new ChessPosition(newRow, newCol);
+                ChessPiece target = board.getPiece(to);
+
+                if (target == null){
+                    moves.add(new ChessMove(from, to, null));
+                } else {
+                    if (target.getTeamColor() != this.teamColor){
+                        moves.add(new ChessMove(from, to, null));
+                    }
+                    break;
+                }
+                newRow += dr;
+                newCol += dc;
+            }
+        }
+    }
     private void rookMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
         int r = from.getRow();
         int c = from.getColumn();
@@ -141,6 +173,69 @@ public class ChessPiece {
                 }
                 newRow += dr;
                 newCol += dc;
+            }
+        }
+    }
+
+    private void queenMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
+        rookMoves(board, from, moves);
+        bishopMoves(board, from, moves);
+    }
+
+    private void addPromotions(ChessPosition from, ChessPosition to, ArrayList<ChessMove> moves){
+        moves.add(new ChessMove(from, to, PieceType.QUEEN));
+        moves.add(new ChessMove(from, to, PieceType.ROOK));
+        moves.add(new ChessMove(from, to, PieceType.BISHOP));
+        moves.add(new ChessMove(from, to, PieceType.KNIGHT));
+
+    }
+
+    private void pawnMoves(ChessBoard board, ChessPosition from, ArrayList<ChessMove> moves){
+        int r = from.getRow();
+        int c = from.getColumn();
+
+        int dir = (teamColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        int startRow = (teamColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
+        int promotionRow = (teamColor == ChessGame.TeamColor.WHITE) ? 8 : 1;
+        int oneStepRow = r + dir;
+        if(isOnBoard(oneStepRow, c)) {
+            ChessPosition oneStep = new ChessPosition(oneStepRow, c);
+
+            if(board.getPiece(oneStep) == null){
+                if(oneStepRow == promotionRow){
+                    addPromotions(from, oneStep, moves);
+                } else {
+                    moves.add(new ChessMove(from, oneStep, null));
+                }
+                if (r == startRow){
+                    int twoStepRow = r + 2 * dir;
+                    ChessPosition twoStep = new ChessPosition(twoStepRow, c);
+                    if(isOnBoard(twoStepRow, c) && board.getPiece(twoStep) == null){
+                        moves.add(new ChessMove(from, twoStep, null));
+                    }
+                }
+            }
+
+
+            int[][] captureDeltas = { { dir, -1}, {dir, 1} };
+            for (int[] d: captureDeltas){
+                int newRow = r + d[0];
+                int newCol = c + d[1];
+
+                if(!isOnBoard(newRow, newCol)){
+                    continue;
+                }
+
+                ChessPosition to = new ChessPosition(newRow, newCol);
+                ChessPiece target = board.getPiece(to);
+
+                if (target != null && target.getTeamColor() != this.teamColor){
+                    if(newRow == promotionRow){
+                        addPromotions(from, to, moves);
+                    } else {
+                        moves.add(new ChessMove(from, to, null));
+                    }
+                }
             }
         }
     }

@@ -22,7 +22,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return 0;
+        return r;
     }
 
     /**
@@ -46,7 +46,5 @@ public class ChessPosition {
         return Objects.hash(r, c);
     }
 
-    public int getRw() {
-    }
 }
 
