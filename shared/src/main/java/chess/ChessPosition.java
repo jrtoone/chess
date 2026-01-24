@@ -22,7 +22,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return r;
+        return 0;
     }
 
     /**
@@ -44,6 +44,9 @@ public class ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(r, c);
+    }
+
+    public int getRw() {
     }
 }
 
