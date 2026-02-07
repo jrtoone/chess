@@ -275,4 +275,3 @@ public class ChessGame {
         return copyBoard;
     }
 }
-
