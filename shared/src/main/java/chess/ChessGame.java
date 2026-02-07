@@ -236,7 +236,6 @@ public class ChessGame {
         return Objects.hash(board, teamTurn);
     }
 
-
     /**
      * Gets the current chessboard
      *
@@ -276,3 +275,4 @@ public class ChessGame {
         return copyBoard;
     }
 }
+
